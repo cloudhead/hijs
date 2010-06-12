@@ -1,3 +1,32 @@
-<script src="hijs.js"></script>
+= hijs
 
-RTFC
+intro:
+
+  hijs is a dead-simple syntax highlighter for JavaScript code on the browser.
+
+  By default, it highlights everything inside <code> blocks.
+
+  If you have command-line snippets, such as:
+
+      $ ls -l > /dev/null
+
+  it will skip those, cause they're obviously not JavaScript.
+
+styling:
+
+  hijs wraps tokens in <span> tags. You can style them like so:
+
+      code .keyword              { font-weight: bold }
+      code .string, code .regexp { color: green }
+      code .number               { color: pink }
+      code .class                { color: blue }
+      code .comment              { color: grey }
+
+usage:
+
+  <script src="hijs.js"></script>
+
+more info:
+
+  RTFC
+
