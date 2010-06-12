@@ -24,8 +24,8 @@ styling:
 
       code .keyword              { font-weight: bold }
       code .string, code .regexp { color: green }
+      code .class, code .special { color: blue }
       code .number               { color: pink }
-      code .class                { color: blue }
       code .comment              { color: grey }
 
 usage:
