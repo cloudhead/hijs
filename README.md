@@ -11,8 +11,15 @@ If you have command-line snippets, such as:
 
 it will skip those, cause they ain't no JavaScript.
 
+usage
+-----
+
+    <script src="hijs.js"></script>
+
 example
 -------
+
+Code extract from http-console:
 
 ![screenshot](http://files.droplr.com.s3.amazonaws.com/files/36156834/1bgj3c.Screen%20shot%202010-06-12%20at%2016:43:02.png)
 
@@ -33,11 +40,6 @@ hijs wraps tokens in `<span>` tags. You can style them like so:
     code .class, code .special { color: blue }
     code .number               { color: pink }
     code .comment              { color: grey }
-
-usage
------
-
-    <script src="hijs.js"></script>
 
 more info
 ---------
