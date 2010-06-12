@@ -12,6 +12,12 @@ intro:
 
   it will skip those, cause they ain't no JavaScript.
 
+philosophy:
+
+  hijs is a simple solution to a potentially complicated problem. It won't
+  fit all your needs, but if what you're trying to achieve is simple enough,
+  hijs might be the tool for you.
+
 styling:
 
   hijs wraps tokens in <span> tags. You can style them like so:
