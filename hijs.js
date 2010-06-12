@@ -31,11 +31,14 @@ for (var i = 0, children; i < nodes.length; i++) {
         code = children[j];
 
         if (code.length >= 0) { // It's a text node
-            Object.keys(syntax).forEach(function (s) {
-                code.nodeValue = code.nodeValue.replace(syntax[s], function (_, m) {
-                    return '{#' + s + '#' + encode(m) + '#}';
+            // Don't highlight command-line snippets
+            if (! /^\$/.test(code.nodeValue.trim())) {
+                Object.keys(syntax).forEach(function (s) {
+                    code.nodeValue = code.nodeValue.replace(syntax[s], function (_, m) {
+                        return '{#' + s + '#' + encode(m) + '#}';
+                    });
                 });
-            });
+            }
         }
     }
 }
