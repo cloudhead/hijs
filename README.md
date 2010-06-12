@@ -19,7 +19,7 @@ usage
 example
 -------
 
-Code extract from http-console:
+Code extract from http-console, highlighted by `hijs`:
 
 ![screenshot](http://files.droplr.com.s3.amazonaws.com/files/36156834/1bgj3c.Screen%20shot%202010-06-12%20at%2016:43:02.png)
 
