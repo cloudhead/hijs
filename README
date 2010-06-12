@@ -10,7 +10,7 @@ intro:
 
       $ ls -l > /dev/null
 
-  it will skip those, cause they're obviously not JavaScript.
+  it will skip those, cause they ain't no JavaScript.
 
 styling:
 
