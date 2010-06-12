@@ -8,8 +8,10 @@
 // All elements which match this will be syntax highlighted.
 var selector = 'code';
 
-var keywords = ('var function if else for while break switch case do new '
-               +'continue delete return this true false throw catch typeof').split(' ');
+var keywords = ('var function if else for while break switch case do new null in with void '
+               +'continue delete return this true false throw catch typeof with instanceof').split(' '),
+    special  = ('eval window document undefined NaN Infinity parseInt parseFloat '
+               +'encodeURI decodeURI encodeURIComponent decodeURIComponent').split(' ');
 
 // Syntax definition
 // The key becomes the class name of the <span>
@@ -20,7 +22,8 @@ var syntax = {
   'regexp' : /(\/.*\/[mgi]*)(?!\w)/g,
   'class'  : /\b([A-Z][a-z]+)\b/g,
   'number' : /\b([0-9]+(?:\.[0-9]+)?)\b/g,
-  'keyword': new(RegExp)('\\b(' + keywords.join('|') + ')\\b', 'g')
+  'keyword': new(RegExp)('\\b(' + keywords.join('|') + ')\\b', 'g'),
+  'special': new(RegExp)('\\b(' + special.join('|') + ')\\b', 'g')
 };
 var nodes = document.querySelectorAll(selector);
 
