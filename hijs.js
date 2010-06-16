@@ -20,7 +20,7 @@ var syntax = {
   'comment': /(\/\*(?:[^*]|\*+[^\/*])*\*+\/|\/\/[^\n]*)/mg,
   'string' : /("(?:(?!")[^\\]|\\.)*"|'(?:(?!')[^\\]|\\.)*')/g,
   'regexp' : /(\/.*\/[mgi]*)(?!\w)/g,
-  'class'  : /\b([A-Z][a-z]+)\b/g,
+  'class'  : /\b([A-Z][a-zA-Z]+)\b/g,
   'number' : /\b([0-9]+(?:\.[0-9]+)?)\b/g,
   'keyword': new(RegExp)('\\b(' + keywords.join('|') + ')\\b', 'g'),
   'special': new(RegExp)('\\b(' + special.join('|') + ')\\b', 'g')
