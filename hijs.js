@@ -1,4 +1,4 @@
-(function () {
+(function (hijs) {
 //
 // hijs - JavaScript Syntax Highlighter
 //
@@ -6,7 +6,7 @@
 //
 
 // All elements which match this will be syntax highlighted.
-var selector = 'code';
+var selector = hijs || 'code';
 
 var keywords = ('var function if else for while break switch case do new null in with void '
                +'continue delete return this true false throw catch typeof with instanceof').split(' '),
@@ -26,8 +26,17 @@ var syntax = [
   ['keyword', new(RegExp)('\\b(' + keywords.join('|') + ')\\b', 'g')],
   ['special', new(RegExp)('\\b(' + special.join('|') + ')\\b', 'g')]
 ];
-var nodes = document.querySelectorAll(selector);
-var table = {};
+var nodes, table = {};
+
+if (/^[a-z]+$/.test(selector)) {
+    nodes = document.getElementsByTagName(selector);
+} else if (/^\.[\w-]+$/.test(selector)) {
+    nodes = document.getElementsByClassName(selector.slice(1));
+} else if (document.querySelectorAll) {
+    nodes = document.querySelectorAll(selector);
+} else {
+    nodes = [];
+}
 
 for (var i = 0, children; i < nodes.length; i++) {
     children = nodes[i].childNodes;
@@ -81,4 +90,4 @@ function decode (str) {
     }
 }
 
-})();
+})(window.hijs);
