@@ -14,7 +14,13 @@ it will skip those, cause they ain't no JavaScript.
 usage
 -----
 
+Put this at the end of your `<body>`:
+
     <script src="hijs.js"></script>
+
+If you would like to specify what gets highlighted, set the global `hijs` variable before you include the script:
+
+    window.hijs = '.highlight';
 
 example
 -------
