@@ -17,9 +17,9 @@ var keywords = ('var function if else for while break switch case do new null in
 // The key becomes the class name of the <span>
 // around the matched block of code.
 var syntax = [
+  ['string' , /("(?:(?!")[^\\\n]|\\.)*"|'(?:(?!')[^\\\n]|\\.)*')/g],
   ['comment', /(\/\*(?:[^*\n]|\*+[^\/*])*\*+\/)/g],
   ['comment', /(\/\/[^\n]*)/g],
-  ['string' , /("(?:(?!")[^\\\n]|\\.)*"|'(?:(?!')[^\\\n]|\\.)*')/g],
   ['regexp' , /(\/.+\/[mgi]*)(?!\s*\w)/g],
   ['class'  , /\b([A-Z][a-zA-Z]+)\b/g],
   ['number' , /\b([0-9]+(?:\.[0-9]+)?)\b/g],
