@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf8" />
+		<title>hijs example</title>
+		<style>
+			code .keyword {
+				font-weight: bold
+			}
+			code .string, code .regexp {
+				color: green
+			}
+			code .class, code .special {
+				color: blue
+			}
+			code .number {
+				color: pink
+			}
+			code .comment {
+				color: grey
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<code>
+
+/*jslint browser:true*/<br />
+/*jslint regexp:true*/<br />
+<br />
+/*!<br />
+&nbsp;* hijs - JavaScript Syntax Highlighter<br />
+&nbsp;*<br />
+&nbsp;* Copyright (c) 2010 Alexis Sellier<br />
+&nbsp;*/<br />
+(function (hijs) {<br />
+&nbsp;&nbsp;&#39;use strict&#39;;<br />
+<br />
+&nbsp;&nbsp;// All elements which match this will be syntax highlighted.<br />
+&nbsp;&nbsp;var selector = hijs || &#39;code&#39;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;keywords = [<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;var&#39;, &#39;function&#39;, &#39;if&#39;, &#39;else&#39;, &#39;for&#39;, &#39;while&#39;, &#39;break&#39;, &#39;switch&#39;, &#39;case&#39;, &#39;do&#39;, &#39;new&#39;, &#39;null&#39;, &#39;in&#39;, &#39;with&#39;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;void&#39;, &#39;continue&#39;, &#39;delete&#39;, &#39;return&#39;, &#39;this&#39;, &#39;true&#39;, &#39;false&#39;, &#39;throw&#39;, &#39;catch&#39;, &#39;typeof&#39;, &#39;with&#39;, &#39;instanceof&#39;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;special  = [<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;eval&#39;, &#39;window&#39;, &#39;document&#39;, &#39;undefined&#39;, &#39;NaN&#39;, &#39;Infinity&#39;, &#39;parseInt&#39;, &#39;parseFloat&#39;, &#39;encodeURI&#39;, &#39;decodeURI&#39;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;encodeURIComponent&#39;, &#39;decodeURIComponent&#39;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;// Syntax definition<br />
+&nbsp;&nbsp;&nbsp;&nbsp;// The key becomes the class name of the &lt;span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;// around the matched block of code.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;syntax = [<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;comment&#39;, /(\/\*(?:[^*\n]|\*+[^\/*])*\*+\/)/g /**/<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;comment&#39;, /(\/\/[^\n]*)/g<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;string&#39;, /(&quot;(?:(?!&quot;)[^\\\n]|\\.)*&quot;|&#39;(?:(?!&#39;)[^\\\n]|\\.)*&#39;)/g //&quot;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;regexp&#39;, /(\/.+\/[mgi]*)(?!\s*\w)/g<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;class&#39;, /\b([A-Z][a-zA-Z]+)\b/g<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;number&#39;, /\b([0-9]+(?:\.[0-9]+)?)\b/g<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;keyword&#39;, new (RegExp)(&#39;\\b(&#39; + keywords.join(&#39;|&#39;) + &#39;)\\b&#39;, &#39;g&#39;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;special&#39;, new (RegExp)(&#39;\\b(&#39; + special.join(&#39;|&#39;) + &#39;)\\b&#39;, &#39;g&#39;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;syntaxLength = syntax.length,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;nodes = [],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;table = {},<br />
+&nbsp;&nbsp;&nbsp;&nbsp;i,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;j,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;y,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;children,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;str,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;code,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;trim,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;map;<br />
+<br />
+&nbsp;&nbsp;// test to see if the native String.prototype.trim() method exists<br />
+&nbsp;&nbsp;if (String.prototype.trim === undefined) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;// if not, put a primitive polyfil in place<br />
+&nbsp;&nbsp;&nbsp;&nbsp;trim = function (str) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return str.replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g, &#39;&#39;).replace(/\s+/g, &#39; &#39;);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;};<br />
+&nbsp;&nbsp;} else {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;// use the native .trim<br />
+&nbsp;&nbsp;&nbsp;&nbsp;trim = function (str) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return str.trim();<br />
+&nbsp;&nbsp;&nbsp;&nbsp;};<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;// test to see if the native Array.prototype.map() method exists<br />
+&nbsp;&nbsp;if (Array.prototype.map === undefined) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;// if not, put a primitive polyfil in place<br />
+&nbsp;&nbsp;&nbsp;&nbsp;map = function (arr, callback) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var len = arr.length,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = [],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i;<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = 0; i &lt; len; i += 1) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result[i] = callback(arr[i], i);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return result;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;};<br />
+&nbsp;&nbsp;} else {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;// use the native .map<br />
+&nbsp;&nbsp;&nbsp;&nbsp;map = function (arr, callback) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return arr.map(callback);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;};<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;function escape(str) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;return str.replace(/&lt;/g, &#39;&amp;lt;&#39;).replace(/&gt;/g, &#39;&amp;gt;&#39;);<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;// Encode ASCII characters to, and from Braille<br />
+&nbsp;&nbsp;function encode(str, encoded) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;table[encoded = map(str.split(&#39;&#39;), function (s) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (s.charCodeAt(0) &gt; 127) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return s;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return String.fromCharCode(s.charCodeAt(0) + 0x2800);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;}).join(&#39;&#39;)] = str;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;return encoded;<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;function decode(str) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;if (table.hasOwnProperty(str)) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return table[str];<br />
+&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;return map(trim(str).split(&#39;&#39;), function (s) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (s.charCodeAt(0) - 0x2800 &gt; 127) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return s;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return String.fromCharCode(s.charCodeAt(0) - 0x2800);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;}).join(&#39;&#39;);<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;function encodeNodeValue(code, k, v) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;return code.nodeValue.replace(v, function (a, m) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;\u00ab&#39; + encode(k) + &#39;\u00b7&#39; + encode(m) + &#39;\u00b7&#39; + encode(k) + &#39;\u00bb&#39;;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;});<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;function handleNode(node) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;var k, v, i,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trimmedValue;<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;if (node.length !== undefined &amp;&amp; node.length &gt;= 0) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trimmedValue = trim(node.nodeValue);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (!/^\$\s/.test(trimmedValue)) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (i = 0; i &lt; syntaxLength; i += 1) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;k = syntax[i][0];<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v = syntax[i][1];<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node.nodeValue = encodeNodeValue(node, k, v);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;function handleHtml(html) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;return html.replace(/\u00ab(.+?)\u00b7(.+?)\u00b7\1\u00bb/g, function (a, name, value) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value = value.replace(/\u00ab[^\u00b7]+\u00b7/g, &#39;&#39;);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value = value.replace(/\u00b7[^\u00bb]+\u00bb/g, &#39;&#39;);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;&lt;span class=&quot;&#39; + decode(name) + &#39;&quot;&gt;&#39; + escape(decode(value)) + &#39;&lt;/span&gt;&#39;;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;});<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;if (/^[a-z]+$/.test(selector)) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;nodes = document.getElementsByTagName(selector);<br />
+<br />
+&nbsp;&nbsp;} else if (document.getElementsByClassName &amp;&amp; /^\.[\w\-]+$/.test(selector)) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;nodes = document.getElementsByClassName(selector.slice(1));<br />
+<br />
+&nbsp;&nbsp;} else if (document.querySelectorAll) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;nodes = document.querySelectorAll(selector);<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;for (i = 0, children; i &lt; nodes.length; i += 1) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;children = nodes[i].childNodes;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;for (j = 0, str; j &lt; children.length; j += 1) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handleNode(children[j]);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;&nbsp;}<br />
+<br />
+&nbsp;&nbsp;for (i = 0; i &lt; nodes.length; i += 1) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;nodes[i].innerHTML = handleHtml(nodes[i].innerHTML);<br />
+&nbsp;&nbsp;}<br />
+<br />
+}(window.hijs));<br />
+
+
+
+
+		</code>
+
+		<script src="/hijs.js"></script>
+	</body>
+
+</html>
