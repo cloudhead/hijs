@@ -22,7 +22,7 @@ var syntax = [
   ['string' , /("(?:(?!")[^\\\n]|\\.)*"|'(?:(?!')[^\\\n]|\\.)*')/g],
   ['regexp' , /(\/.+\/[mgi]*)(?!\s*\w)/g],
   ['class'  , /\b([A-Z][a-zA-Z]+)\b/g],
-  ['number' , /\b([0-9]+(?:\.[0-9]+)?)\b/g],
+  ['number' , /\b([0-9xXa-fA-F]+(?:\.[0-9]+)?)\b/g],
   ['keyword', new(RegExp)('\\b(' + keywords.join('|') + ')\\b', 'g')],
   ['special', new(RegExp)('\\b(' + special.join('|') + ')\\b', 'g')]
 ];
